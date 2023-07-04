@@ -5,6 +5,9 @@ const MongoClient = require('mongodb').MongoClient;
 app.set('view engine','ejs')
 app.use(express.urlencoded({extended : true}))
 
+const methodOverride = require('method-override')
+app.use(methodOverride('_method'))
+
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html')
 })
@@ -49,16 +52,41 @@ app.get('/list',(req,res)=>{
 
 //Ajax삭제요청시 
 app.delete('/delete',(req,res)=>{
-  req.body._id = parseInt(req.body._id)
-  db.collection('post').deleteOne(req.body,(error,result)=>{
-    if(error) console.log(error)
-    console.log(result)
-    console.log('삭제완료')
+  //_id가 str로 받아와져서 이렇게됨
+  //req.body._id = parseInt(req.body._id)
+  let id = parseInt(req.params.id);
+  console.log(id)
+  db.collection('post').deleteOne(id,(error,result)=>{
+    if(error) console.log('삭제요청:'+error)
+    res.send('삭제완료')
   })
-  res.send('삭제완료')
 })
 
+app.get('/detail/:id',(req,res)=>{
+  db.collection('post').findOne({_id : parseInt(req.params.id)},(error,result)=>{
+    //detail/1로 보여주세요
+    res.render('detail.ejs',{data: result})
+  })
+})
 
+//edit.ejs GET요청처리
+app.get('/edit/:id',(req,res)=>{
+  //제목과 date값을 찾아서 data로 전달해줘야함 
+  db.collection('post').findOne({_id : parseInt(req.params.id)},(error,result)=>{
+    if(error) console.log(error)
+    console.log(result)
+    res.render('edit.ejs',{data : result})
+  })
+})
+
+app.put('/edit',(req,res)=>{
+  db.collection('post').updateOne({_id: parseInt(req.body.id)},
+  {$set:{title:req.body.title, date:req.body.date}},
+  (error,result)=>{
+    if(error) console.log(error)
+    res.redirect('/list')
+  })
+})
 
 
 
