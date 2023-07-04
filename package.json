@@ -1,7 +1,6 @@
 {
   "name": "nodejs-clone",
   "version": "1.0.0",
-  "description": "",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -16,5 +15,14 @@
     "express": "^4.18.2",
     "mongodb": "4.1",
     "nodemon": "^1.14.9"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hyeonu0303/Nodejs-clone.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hyeonu0303/Nodejs-clone/issues"
+  },
+  "homepage": "https://github.com/hyeonu0303/Nodejs-clone#readme",
+  "description": ""
 }
