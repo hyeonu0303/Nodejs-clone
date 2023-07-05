@@ -4,6 +4,7 @@ const port = 8000
 const MongoClient = require('mongodb').MongoClient;
 app.set('view engine','ejs')
 app.use(express.urlencoded({extended : true}))
+app.use(express.json());
 
 const methodOverride = require('method-override')
 app.use(methodOverride('_method'))
@@ -72,18 +73,20 @@ app.get('/detail/:id',(req,res)=>{
 //edit.ejs GET요청처리
 app.get('/edit/:id',(req,res)=>{
   //제목과 date값을 찾아서 data로 전달해줘야함 
+  //parseInt(req.params.id)
   db.collection('post').findOne({_id : parseInt(req.params.id)},(error,result)=>{
     if(error) console.log(error)
     console.log(result)
     res.render('edit.ejs',{data : result})
   })
-})
+}) 
 
 app.put('/edit',(req,res)=>{
   db.collection('post').updateOne({_id: parseInt(req.body.id)},
   {$set:{title:req.body.title, date:req.body.date}},
   (error,result)=>{
     if(error) console.log(error)
+    console.log('수정완료')
     res.redirect('/list')
   })
 })

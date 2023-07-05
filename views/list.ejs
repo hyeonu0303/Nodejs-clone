@@ -27,25 +27,22 @@
     crossorigin="anonymous"></script>
 </body>
 <!--jQuery-->
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script>
-  $('.delete-button').click(function(e){
-    $.ajax({
-      method: 'DELETE',
-      url : `/delete`,
-      data : {_id : e.target.dataset.id}
-    }).done((result)=>{
-      $(this).parent('li').fadeOut();
+  $('.delete-button').click(function (e) {
+      $.ajax({
+        method: 'DELETE',
+        url: `/delete`,
+        data: { _id: e.target.dataset.id }
+      }).done((result) => {
+        $(this).parent('li').fadeOut();
+      })
+    });
+
+    $('.put-button').click(function (e) {
+      window.location.href = `/edit/${e.target.dataset.id}`;
     })
-  });
-  
-  $('.put-button').click(function(e){
-    $.ajax({
-      method: 'GET',
-      url : '/edit',
-      data: {id: parseInt(e.target.dataset.id)}
-    })
-  })
 
 </script>
 </body>
