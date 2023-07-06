@@ -1,6 +1,5 @@
 const express = require('express')
 const app = express()
-const port = 8000
 const MongoClient = require('mongodb').MongoClient;
 app.set('view engine','ejs')
 app.use(express.urlencoded({extended : true}))
@@ -9,28 +8,27 @@ app.use(express.json());
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
-
 app.use(session({secret : '비밀코드', resave : true, saveUninitialized: false}));
 app.use(passport.initialize());
 app.use(passport.session()); 
 //method-override
 const methodOverride = require('method-override')
 app.use(methodOverride('_method'))
-
+//dotenv
+require('dotenv').config()
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/index.html')
 })
-
 app.get('/write',(req,res)=>{
   res.render('write.ejs')
 })
 
 
 let db;
-MongoClient.connect('mongodb+srv://hyeonwoo:qwer1234@cluster0.szzp2iu.mongodb.net/?retryWrites=true&w=majority', {useUnifiedTopology: true} ,function(에러, client){
+MongoClient.connect(process.env.DB_URL, {useUnifiedTopology: true} ,function(에러, client){
   if (에러) return console.log(에러);
   db = client.db('todoapp')
-  app.listen(port, ()=>{
+  app.listen(process.env.PORT, ()=>{
     console.log('start 8000')
   })
 })
@@ -166,3 +164,12 @@ app.post('/register',(req,res)=>{
     res.redirect('/login')
   })
 })
+//검색기능구현
+app.get('/search', (req, res)=>{
+  db.collection('post').find({title:req.query.value}).toArray((error,result)=>{
+    console.log(result)
+    res.render('search.ejs',{posts:result})
+  })
+})
+
+
