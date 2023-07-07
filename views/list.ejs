@@ -50,7 +50,7 @@
   $('.put-button').click(function (e) {
     window.location.href = `/edit/${e.target.dataset.id}`;
   })
-
+  //검색기능
   $('#search').click(function(){
         var 입력한값 = $('#search-input').val();
         window.location.replace('/search?value=' + 입력한값)

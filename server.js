@@ -33,19 +33,7 @@ MongoClient.connect(process.env.DB_URL, {useUnifiedTopology: true} ,function(에
   })
 })
 
-app.post('/add',(req,res)=>{
-  db.collection('counter').findOne({name: '게시물갯수'}, (error,result)=>{
-    let totalPost = result.totalPost
-    db.collection('post').insertOne({_id:(totalPost + 1),title:req.body.title,date:req.body.date},(error,result)=>{
-      console.log(result)
-      db.collection('counter').updateOne({name:'게시물갯수'},{$inc : {totalPost:1}},(error,result)=>{
-        if(error) console.log(error)
-        res.send('전송완료')
-        console.log('저장완료')
-      })
-    })
-  })
-})
+
 
 //list GET요청처리
 app.get('/list',(req,res)=>{
@@ -152,18 +140,6 @@ app.get('/mypage',로그인했니,(req,res)=>{
     console.log(req.user)
     res.render('mypage.ejs',{user : req.user}) 
 })
-//회원가입페이지
-app.get('/register',(req,res)=>{
-  res.render('register.ejs')
-})
-
-app.post('/register',(req,res)=>{
-  db.collection('login').insertOne({id:req.body.id,pw:req.body.pw},(error,result)=>{
-    if(error) console.log(error)
-    console.log('회원가입완료')
-    res.redirect('/login')
-  })
-})
 //검색기능구현
 app.get('/search', (req, res)=>{
   //인덱스 만들어둔것 <- mongo db
@@ -174,16 +150,48 @@ app.get('/search', (req, res)=>{
       $search: {
         index: 'titleSearch', //내가만든 인덱스명
         text: {
-          query: 요청.query.value,
+          query: req.query.value,
           path: 'title'  // 제목날짜 둘다 찾고 싶으면 ['제목', '날짜']
         }
       }
     }
   ]
-  db.collection('post').aggregate().toArray((error,result)=>{
+  db.collection('post').aggregate(검색조건).toArray((error,result)=>{
     console.log(result)
     res.render('search.ejs',{posts:result})
   })
 })
 
+//회원가입페이지
+app.get('/register',(req,res)=>{
+  res.render('register.ejs')
+})
+app.post('/register',(req,res)=>{
+  //로직의문제점 test4라는걸 입력하면 찾는값이 result가 null이니까 당연히안됨
+  db.collection('login').findOne({id:req.body.id},(error,result)=>{
+    if(error) console.log(error)
+    else if(result) res.send('아이디중복발생!')
+    else{
+      db.collection('login').insertOne({id:req.body.id,pw:req.body.pw},(error,result)=>{
+        if(error) console.log(error)
+        console.log('회원가입완료')
+        res.redirect('/login')
+      })
+    }
+  })
+})
+
+app.post('/add',로그인했니,(req,res)=>{
+  db.collection('counter').findOne({name: '게시물갯수'}, (error,result)=>{
+    let totalPost = result.totalPost
+    db.collection('post').insertOne({_id:(totalPost + 1),작성자:req.user._id,title:req.body.title,date:req.body.date},(error,result)=>{
+      console.log(result)
+      db.collection('counter').updateOne({name:'게시물갯수'},{$inc : {totalPost:1}},(error,result)=>{
+        if(error) console.log(error)
+        res.send('전송완료')
+        console.log('저장완료')
+      })
+    })
+  })
+})
 
