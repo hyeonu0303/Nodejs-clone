@@ -166,7 +166,21 @@ app.post('/register',(req,res)=>{
 })
 //검색기능구현
 app.get('/search', (req, res)=>{
-  db.collection('post').find({title:req.query.value}).toArray((error,result)=>{
+  //인덱스 만들어둔것 <- mongo db
+  //find({$text: {$search: req.query.value}}) 쉽게 다 찾아낼수있음
+  //aggregate({},{},{}) 검색조건을 여러개 달 수 있음
+  let 검색조건 = [
+    {
+      $search: {
+        index: 'titleSearch', //내가만든 인덱스명
+        text: {
+          query: 요청.query.value,
+          path: 'title'  // 제목날짜 둘다 찾고 싶으면 ['제목', '날짜']
+        }
+      }
+    }
+  ]
+  db.collection('post').aggregate().toArray((error,result)=>{
     console.log(result)
     res.render('search.ejs',{posts:result})
   })
