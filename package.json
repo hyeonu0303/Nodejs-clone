@@ -20,6 +20,7 @@
     "fsevents": "^2.3.2",
     "method-override": "^3.0.0",
     "mongodb": "~4.1.4",
+    "multer": "1.4.5-lts.1",
     "nodemon": "^1.19.4",
     "passport": "^0.6.0",
     "passport-local": "^1.0.0"

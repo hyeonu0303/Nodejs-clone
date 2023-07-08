@@ -196,3 +196,17 @@ app.post('/add',(req,res)=>{
   })
 })
 
+let multer = require('multer')
+var storage = multer.diskStorage({
+  destination : (req,file,cb)=>{
+    cb(null, './public/img')
+  },
+  filename : (req,file, cb)=>{
+    cb(null, file.originalname)
+  }
+})
+app.get('/upload',(req,res)=>{
+  res.render('upload.ejs')
+})
+
+app.post( )
