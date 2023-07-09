@@ -28,7 +28,7 @@
           </p>
           <button class="btn btn-outline-primary delete-button" data-id="<%= posts[i]._id %>">삭제</button>
           <button type="submit" class="btn btn-outline-danger put-button" data-id="<%= posts[i]._id %>">수정</button>
-          <button type="submit" class="btn btn-outline-success chat-button" data-id="<%= posts[i]._id %>">채팅</button>
+          <button type="submit" class="btn btn-outline-success chat-button" data-id="<%= posts[i].작성자 %>">채팅</button>
         </li>
         <% } %>
     </ul>
@@ -57,11 +57,12 @@
     var 입력한값 = $('#search-input').val();
     window.location.replace('/search?value=' + 입력한값)
   });
-
+  //채팅방정보 전송
   $('.chat-button').click((e)=>{
-    axios.get(`/chat/${e.target.dataset.id}`)
+    let id = e.target.dataset.id;
+    axios.post('/chat',{당한사람id: id})
       .then((response)=>{
-        window.location.href=`/chat/${e.target.dataset.id}`
+        console.log('채팅방게시물 생성완료')
       })
       .catch(error=>{
         console.log(error);

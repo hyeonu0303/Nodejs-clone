@@ -14,7 +14,11 @@ app.use(passport.session());
 //method-override
 const methodOverride = require('method-override')
 app.use(methodOverride('_method'))
-
+const {ObjectId} = require('mongodb');
+//socket.io
+const http = require('http').createServer(app);
+const { Server } = require("socket.io");
+const io = new Server(http);
 
 passport.use(new LocalStrategy({
   usernameField: 'id', //(요기는 사용자가 제출한 아이디가 어디 적혔는지) 
@@ -69,7 +73,8 @@ let db;
 MongoClient.connect(process.env.DB_URL, {useUnifiedTopology: true} ,function(에러, client){
   if (에러) return console.log(에러);
   db = client.db('todoapp')
-  app.listen(process.env.PORT, ()=>{
+
+  http.listen(process.env.PORT, ()=>{
     console.log('start 8000')
   })
 })
@@ -213,11 +218,39 @@ app.post('/upload',upload.single('profile'),(req,res)=>{
   res.send('완료')
 })
 
-app.get('/chat/:id',(req,res)=>{
-  db.collection('post').findOne({_id:parseInt(req.params.id)},(error,result)=>{
-    //db에 데이터입력한걸 넣어줘야함
-    //작성자의 id필요, input내용, 방이름(게시물의 이름따오면됨)
-    db.collection('chat').insertOne({member: req.user._id,title:result.title,date:new Date()})
-    res.render('chat.ejs')
+app.post('/chat',(req,res)=>{
+  let 저장할거 = {
+    title: '무슨무슨채팅방',
+    member: [ObjectId(req.body.당한사람id), req.user._id],
+    data: new Date()
+  }
+  db.collection('chatroom').insertOne(저장할거).then((result)=>{
+    res.send('전송완료')
+  })
+})
+
+app.get('/chatroom', 로그인했니, function(요청, 응답){ 
+  db.collection('chatroom').find({ member : 요청.user._id }).toArray().then((결과)=>{
+    console.log(결과);
+    응답.render('chat.ejs', {data : 결과})
+  })
+});
+
+app.get('/chat',로그인했니, (req,res)=>{
+  db.collection('chatroom').find({member : req.user._id}).toArray().then((result)=>{
+    res.render('chat.ejs', {data:result})
+  })
+})
+
+//socket
+
+app.get('/socket',(req,res)=>{
+  res.render('socket.ejs')
+})
+
+io.on('connection',(socket)=>{
+  console.log('유저접속됨')
+  socket.on('user-send',function(data){
+    console.log(data)    
   })
 })
