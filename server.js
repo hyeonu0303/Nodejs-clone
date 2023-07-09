@@ -65,7 +65,6 @@ app.get('/write',(req,res)=>{
   res.render('write.ejs')
 })
 
-
 let db;
 MongoClient.connect(process.env.DB_URL, {useUnifiedTopology: true} ,function(에러, client){
   if (에러) return console.log(에러);
@@ -74,8 +73,6 @@ MongoClient.connect(process.env.DB_URL, {useUnifiedTopology: true} ,function(에
     console.log('start 8000')
   })
 })
-
-
 
 //list GET요청처리
 app.get('/list',(req,res)=>{
@@ -185,7 +182,7 @@ app.post('/register',(req,res)=>{
 app.post('/add',(req,res)=>{
   db.collection('counter').findOne({name: '게시물갯수'}, (error,result)=>{
     let totalPost = result.totalPost
-    db.collection('post').insertOne({_id:(totalPost + 1),작성자:req.user._id,title:req.body.title,date:req.newDate()},(error,result)=>{
+    db.collection('post').insertOne({_id:(totalPost + 1),작성자:req.user._id,title:req.body.title,date:req.body.date},(error,result)=>{
       console.log(result)
       db.collection('counter').updateOne({name:'게시물갯수'},{$inc : {totalPost:1}},(error,result)=>{
         if(error) console.log(error)
@@ -195,7 +192,7 @@ app.post('/add',(req,res)=>{
     })
   })
 })
-
+//이미지올리는기능
 let multer = require('multer')
 var storage = multer.diskStorage({
   destination : (req,file,cb)=>{
@@ -205,8 +202,22 @@ var storage = multer.diskStorage({
     cb(null, file.originalname)
   }
 })
+
+let upload = multer({storage:storage})
+
 app.get('/upload',(req,res)=>{
   res.render('upload.ejs')
 })
 
-app.post( )
+app.post('/upload',upload.single('profile'),(req,res)=>{
+  res.send('완료')
+})
+
+app.get('/chat/:id',(req,res)=>{
+  db.collection('post').findOne({_id:parseInt(req.params.id)},(error,result)=>{
+    //db에 데이터입력한걸 넣어줘야함
+    //작성자의 id필요, input내용, 방이름(게시물의 이름따오면됨)
+    db.collection('chat').insertOne({member: req.user._id,title:result.title,date:new Date()})
+    res.render('chat.ejs')
+  })
+})
